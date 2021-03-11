@@ -9,7 +9,7 @@ namespace upAlarm
     {
         public APing()
         {
-            Buffer = new byte[3];
+            Buffer = new byte[3]; //by default, ping em with 3 bytes to ease the network load
             FrequencyMs = 500;
             TimeoutMs = 1000;
             Ttl = 128;
