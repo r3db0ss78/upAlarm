@@ -33,7 +33,6 @@ namespace upAlarm
             IsWebRunning = false;
             IsUp = false;
             IsWebUp = false;
-            Buffer.Initialize();
            
         }
 

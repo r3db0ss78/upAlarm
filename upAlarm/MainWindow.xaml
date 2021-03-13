@@ -6,15 +6,21 @@
         xmlns:local="clr-namespace:upAlarm"
         xmlns:Data="clr-namespace:System.Data;assembly=System.Data" xmlns:Properties="clr-namespace:upAlarm.Properties" xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="upAlarm.MainWindow"
         mc:Ignorable="d"
-        Title="upAlarm" Height="450" Width="839.362">
+        Title="upAlarm" Height="606" Width="839.362">
 
-    <Grid Height="44" Margin="10,25,42,0" VerticalAlignment="Top" RenderTransformOrigin="2.237,-0.703">
+    <Grid Height="50" Margin="10,25,42,0" VerticalAlignment="Top" RenderTransformOrigin="2.237,-0.703">
 
         <TextBox x:Name="UserInput" KeyDown="Key_Down" Height="23" TextWrapping="Wrap" Text="Enter Host" Cursor="" GotFocus="UserInput_GotFocus" Margin="0,10,451,10"/>
         <Button x:Name="Ping"  Height="23"  Width="100" Content="Ping" Click="Ping_Click" RenderTransformOrigin="1.54,0.49"   />
 
-        <ListBox Name="listBox1"  SelectionMode="Single" Margin="0,60,5,-284"/>
+        <ListBox Name="listBox1"  SelectionMode="Single" Margin="0,105,5,-347"/>
         <TextBlock x:Name="errorMsg" HorizontalAlignment="Left" Margin="23,38,0,-10" TextWrapping="Wrap" VerticalAlignment="Top" RenderTransformOrigin="-0.163,0.5" Width="291"/>
+        <TextBox x:Name="FrequencyMs" HorizontalAlignment="Left" Height="23" Margin="0,54,0,-27" TextWrapping="Wrap" VerticalAlignment="Top" Width="91"/>
+        <TextBox x:Name="Buffer" HorizontalAlignment="Left" Height="23" Margin="105,54,0,-27" TextWrapping="Wrap" VerticalAlignment="Top" Width="80"/>
+        <TextBox x:Name="NotificationEmail" HorizontalAlignment="Left" Height="23" Margin="205,54,0,-27" TextWrapping="Wrap" VerticalAlignment="Top" Width="165"/>
+        <Label Content="Frequency (ms)" HorizontalAlignment="Left" Height="33" Margin="0,77,0,-60" VerticalAlignment="Top"/>
+        <Label Content="Buffer (bytes)" HorizontalAlignment="Left" Height="28" Margin="105,77,0,-55" VerticalAlignment="Top" RenderTransformOrigin="0.425,0.321"/>
+        <Label Content="Notification E-Mail" HorizontalAlignment="Left" Height="28" Margin="205,77,0,-55" VerticalAlignment="Top"/>
 
         <!--
         

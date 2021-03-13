@@ -34,9 +34,15 @@ namespace upAlarm
         public MainWindow()
         {
             InitializeComponent();
-            
+            APing ping = new APing();
+            InitializeInputs(ping);
         }
 
+        public void InitializeInputs(APing ping)
+        {
+            FrequencyMs.Text = ping.FrequencyMs.ToString();
+            Buffer.Text = ping.Buffer.Count().ToString();
+        }
 
         protected override void OnStateChanged(EventArgs e)
         {
@@ -63,7 +69,10 @@ namespace upAlarm
             {
                 if (UserInput.Text.ToString().Length > 0)
                 {
-                    StartPings(APing.GetHostName(UserInput.Text.ToString()));
+                    
+                    int frequency = Convert.ToInt32(FrequencyMs.Text);
+                    int size = Convert.ToInt32(Buffer.Text);
+                    StartPings(APing.GetHostName(UserInput.Text.ToString()), frequency, size);
                 }
             }
         }
@@ -72,11 +81,13 @@ namespace upAlarm
         {
             if (UserInput.Text.ToString().Length > 0)
             {
-                StartPings(APing.GetHostName(UserInput.Text.ToString()));
+                int frequency = Convert.ToInt32(FrequencyMs.Text);
+                int size= Convert.ToInt32(Buffer.Text);
+                StartPings(APing.GetHostName(UserInput.Text.ToString()),frequency,size);
             }
         }
 
-        public async void StartPings(string hostname)
+        public async void StartPings(string hostname, int frequencyMs, int sizeBytes)
         {
             UserMsg("");
             try
@@ -104,7 +115,14 @@ namespace upAlarm
 
                     listBox1.Items.Add(panel);
 
-                    ips.Add(new APing(hostname));
+                    byte[] buffer = new byte[sizeBytes];
+                    buffer.Initialize();
+                    APing ping = new APing();
+                    ping.Ip = hostEntry.HostName;
+                    ping.FrequencyMs = frequencyMs;
+                    
+
+                    ips.Add(ping);
                     DoPings();
                 }
                 else
