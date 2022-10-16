@@ -68,6 +68,8 @@ namespace upAlarm
             if (e.Key == Key.Return)
             {
                 Run(); //run
+                UserInput.Text="";
+                e.KeyboardDevice.Focus(UserInput);
             }
         }
 
@@ -76,6 +78,7 @@ namespace upAlarm
             if (UserInput.Text.ToString().Length > 0)
             {
                 Run(); //no validation
+                e.Handled = true;
             }
         }
 
@@ -141,13 +144,14 @@ namespace upAlarm
         {
             for (int i=0;i<ips.Count();i++)
             {
+                
                 if (!ips[i].IsRunning)
                 {
                     try
                     {
                         await Task.Run(delegate
                         {
-
+                            Task.Delay(1000);
                             Thread th = new Thread(() => DoPing(ips[i], i));
                             th.SetApartmentState(ApartmentState.STA);
                             th.IsBackground = true;
