@@ -67,13 +67,7 @@ namespace upAlarm
         {
             if (e.Key == Key.Return)
             {
-                if (UserInput.Text.ToString().Length > 0)
-                {
-                    
-                    int frequency = Convert.ToInt32(FrequencyMs.Text);
-                    int size = Convert.ToInt32(Buffer.Text);
-                    StartPings(APing.GetHostName(UserInput.Text.ToString()), frequency, size);
-                }
+                Run(); //run
             }
         }
 
@@ -81,10 +75,16 @@ namespace upAlarm
         {
             if (UserInput.Text.ToString().Length > 0)
             {
-                int frequency = Convert.ToInt32(FrequencyMs.Text);
-                int size= Convert.ToInt32(Buffer.Text);
-                StartPings(APing.GetHostName(UserInput.Text.ToString()),frequency,size);
+                Run(); //no validation
             }
+        }
+
+        private void Run()
+        {
+            
+                int frequency = Convert.ToInt32(FrequencyMs.Text);
+                int size = Convert.ToInt32(Buffer.Text);
+                StartPings(APing.GetHostName(UserInput.Text.ToString()),frequency,size);          
         }
 
         public async void StartPings(string hostname, int frequencyMs, int sizeBytes)
