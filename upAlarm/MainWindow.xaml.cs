@@ -174,13 +174,13 @@ namespace upAlarm
         public void  DoPing(APing aping, int number)
         {
                    
-            Ping ping = new Ping();
                 try
                 {
+                    Ping ping = new Ping();
                     PingOptions options = new PingOptions(aping.Ttl, aping.DontFragment);
                     System.Timers.Timer timer = new System.Timers.Timer(aping.FrequencyMs);
                     timer.Elapsed +=  new ElapsedEventHandler(async delegate{
-
+                    
                     PingReply pong = await ping.SendPingAsync(aping.Ip, aping.TimeoutMs, aping.Buffer, options);
                     SetValue(pong, aping, number);
 
