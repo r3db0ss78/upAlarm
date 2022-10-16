@@ -10,7 +10,7 @@ namespace upAlarm
     {
         public Email()
         {
-            this.SendAsync("upAlarm@localhost", "r3d__@hotmail.com", "ip down", "The up is down", new object());
+           // this.SendAsync("upAlarm@localhost", "", "ip down", "The up is down", new object());
         }
 
     }
