@@ -177,16 +177,34 @@ namespace upAlarm
                 try
                 {
                     Ping ping = new Ping();
+                    PingReply pong = null;
                     PingOptions options = new PingOptions(aping.Ttl, aping.DontFragment);
-                    System.Timers.Timer timer = new System.Timers.Timer(aping.FrequencyMs);
-                    timer.Elapsed +=  new ElapsedEventHandler(async delegate{
                     
-                    PingReply pong = await ping.SendPingAsync(aping.Ip, aping.TimeoutMs, aping.Buffer, options);
-                    SetValue(pong, aping, number);
+                    //pong = ping.Send(aping.Ip, aping.TimeoutMs, aping.Buffer, options);
+                    //int fr = (int)pong.RoundtripTime+10;
+             
+                    System.Timers.Timer timer = new System.Timers.Timer(aping.FrequencyMs);
+                    if (null == pong)
+                    {
+                        timer.Elapsed += new ElapsedEventHandler(async delegate
+                        {
+                            try //dirty fix
+                            {
+                                pong = await ping.SendPingAsync(aping.Ip, aping.TimeoutMs, aping.Buffer, options);
+                                SetValue(pong, aping, number);
+                            }
+                            catch
+                            {
+                                pong = null;
+                                ping.Dispose();
+                                aping.FrequencyMs += 10; //dirty fix
+                            }
 
-                        
-                    });
+
+                        });
+                    }
                     timer.Start();
+                    
 
                 }
                 catch (Exception e)
@@ -195,6 +213,8 @@ namespace upAlarm
                    GC.Collect();
                 }
         }
+
+
 
         public void UserMsg(string msg)
         {
