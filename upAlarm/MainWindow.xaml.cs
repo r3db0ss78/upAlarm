@@ -25,7 +25,7 @@ namespace upAlarm
     /// </summary>
     public partial class MainWindow : Window
     {
-       
+
         List<APing> ips = new List<APing>();
         List<ComboBoxItem> list = new List<ComboBoxItem>();
         List<ComboBoxItem> listWeb = new List<ComboBoxItem>();
@@ -53,8 +53,8 @@ namespace upAlarm
                 this.Hide();
 
             }
-                
-                
+
+
             base.OnStateChanged(e);
         }
 
@@ -68,7 +68,7 @@ namespace upAlarm
             if (e.Key == Key.Return)
             {
                 Run(); //run
-                UserInput.Text="";
+                UserInput.Text = "";
                 e.KeyboardDevice.Focus(UserInput);
             }
         }
@@ -84,10 +84,10 @@ namespace upAlarm
 
         private void Run()
         {
-            
-                int frequency = Convert.ToInt32(FrequencyMs.Text);
-                int size = Convert.ToInt32(Buffer.Text);
-                StartPings(APing.GetHostName(UserInput.Text.ToString()),frequency,size);          
+
+            int frequency = Convert.ToInt32(FrequencyMs.Text);
+            int size = Convert.ToInt32(Buffer.Text);
+            StartPings(APing.GetHostName(UserInput.Text.ToString()), frequency, size);
         }
 
         public async void StartPings(string hostname, int frequencyMs, int sizeBytes)
@@ -96,7 +96,7 @@ namespace upAlarm
             try
             {
                 IPHostEntry hostEntry = await Dns.GetHostEntryAsync(hostname);
-               
+
                 if (hostEntry.AddressList.Length > 0)
                 {
                     TextBlock output = new TextBlock();
@@ -123,7 +123,7 @@ namespace upAlarm
                     APing ping = new APing();
                     ping.Ip = hostEntry.HostName;
                     ping.FrequencyMs = frequencyMs;
-                    
+
 
                     ips.Add(ping);
                     DoPings();
@@ -142,9 +142,9 @@ namespace upAlarm
 
         public async void DoPings()
         {
-            foreach(APing ip in ips)
+            foreach (APing ip in ips)
             {
-                if (!ip.IsRunning && ip.ThreadId==0)
+                if (!ip.IsRunning && ip.ThreadId == 0)
                 {
                     try
                     {
@@ -167,50 +167,50 @@ namespace upAlarm
                     }
                 }
             }
-            
+
         }
 
-        public void  DoPing(APing aping, int threadId)
+        public void DoPing(APing aping, int threadId)
         {
-                   
-                try
+
+            try
+            {
+                Ping ping = new Ping();
+                PingReply pong = null;
+                PingOptions options = new PingOptions(aping.Ttl, aping.DontFragment);
+
+                //pong = ping.Send(aping.Ip, aping.TimeoutMs, aping.Buffer, options);
+                //int fr = (int)pong.RoundtripTime+10;
+
+                System.Timers.Timer timer = new System.Timers.Timer(aping.FrequencyMs);
+                if (null == pong)
                 {
-                    Ping ping = new Ping();
-                    PingReply pong = null;
-                    PingOptions options = new PingOptions(aping.Ttl, aping.DontFragment);
-                    
-                    //pong = ping.Send(aping.Ip, aping.TimeoutMs, aping.Buffer, options);
-                    //int fr = (int)pong.RoundtripTime+10;
-             
-                    System.Timers.Timer timer = new System.Timers.Timer(aping.FrequencyMs);
-                    if (null == pong)
+                    timer.Elapsed += new ElapsedEventHandler(async delegate
                     {
-                        timer.Elapsed += new ElapsedEventHandler(async delegate
+                        try //dirty fix
                         {
-                            try //dirty fix
-                            {
-                                pong = await ping.SendPingAsync(aping.Ip, aping.TimeoutMs, aping.Buffer, options);
-                                SetValue(pong, aping, threadId);
-                            }
-                            catch
-                            {
-                                pong = null;
-                                ping.Dispose();
-                                aping.FrequencyMs += 10; //dirty fix
-                            }
+                            pong = await ping.SendPingAsync(aping.Ip, aping.TimeoutMs, aping.Buffer, options);
+                            SetValue(pong, aping, threadId);
+                        }
+                        catch
+                        {
+                            pong = null;
+                            ping.Dispose();
+                            aping.FrequencyMs += 10; //dirty fix
+                        }
 
 
-                        });
-                    }
-                    timer.Start();
-                    
-
+                    });
                 }
-                catch (Exception e)
-                {
-                   UserMsg(e.Message);
-                   GC.Collect();
-                }
+                timer.Start();
+
+
+            }
+            catch (Exception e)
+            {
+                UserMsg(e.Message);
+                GC.Collect();
+            }
         }
 
 
@@ -220,10 +220,10 @@ namespace upAlarm
             Application.Current.Dispatcher.Invoke((Action)delegate
             {
                 errorMsg.Text = msg;
-            });   
+            });
         }
 
-        
+
         //todo need to set it by thread id. good for now
 
         public void SetValue(PingReply pong, APing ip, int number)
@@ -233,21 +233,21 @@ namespace upAlarm
             {
                 Application.Current.Dispatcher.Invoke((Action)delegate {
 
-                    StackPanel panel = (StackPanel)listBox1.Items[listBox1.Items.Count-1] ;
+                    StackPanel panel = (StackPanel)listBox1.Items[listBox1.Items.Count - 1];
                     TextBlock block = (TextBlock)panel.Children[1];
-                    block.Text = " " + ip.Ip + " : " + APing.ReplyText(pong)+"\t";
-                    Rectangle rect= (Rectangle)panel.Children[0];
+                    block.Text = " " + ip.Ip + " : " + APing.ReplyText(pong) + "\t";
+                    Rectangle rect = (Rectangle)panel.Children[0];
                     if (rect.Fill == Brushes.ForestGreen)
                     {
                         rect.Fill = Brushes.Yellow;
-                        rect.RenderSize=new Size(20, 20);
+                        rect.RenderSize = new Size(20, 20);
                     }
                     else
                     {
                         rect.Fill = Brushes.ForestGreen;
                         rect.RenderSize = new Size(40, 40);
                     }
-                   
+
                 });
 
             }
