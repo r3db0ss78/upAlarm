@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Threading.Tasks;
 
 namespace upAlarm
 {
@@ -18,6 +19,7 @@ namespace upAlarm
             IsWebRunning = false;
             IsUp = false;
             IsWebUp = false;
+            Proc=null;
             Buffer.Initialize();
         }
 
@@ -33,6 +35,7 @@ namespace upAlarm
             IsWebRunning = false;
             IsUp = false;
             IsWebUp = false;
+            Proc = null;
            
         }
 
@@ -48,6 +51,7 @@ namespace upAlarm
         public bool IsWebUp { get; set; }
         public int ThreadId { get; set; }
         public long ReplyMs { get; set; }
+        public Task Proc { get; set; }
 
         public string Header()
         {

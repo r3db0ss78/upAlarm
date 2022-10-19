@@ -32,6 +32,7 @@ namespace upAlarm
         List<ComboBoxItem> list = new List<ComboBoxItem>();
         List<ComboBoxItem> listWeb = new List<ComboBoxItem>();
         StackPanel panel = new StackPanel();
+        //List<Task> runningPings=new List<Task>();
        
 
         public MainWindow()
@@ -152,7 +153,9 @@ namespace upAlarm
                         timer.Start();
 
                     });
+                    
                     t.RunSynchronously();
+                    ips.Find(a => a.ThreadId == ip.ThreadId).Proc = t;
                 }
                 catch (Exception e)
                 {
@@ -161,18 +164,7 @@ namespace upAlarm
                 }//end catch
             
             }
-
-            foreach (APing ip in this.ips.AsEnumerable().Where(t => t.IsRunning == true))
-            {
-                System.Timers.Timer timer = new System.Timers.Timer(100);
-                timer.Elapsed += new ElapsedEventHandler(async delegate
-                {
-                    SetValue(await DoPing(ip), ip);
-                });
-
-                timer.Start();
-            }
-
+          
 
             }
 
@@ -184,18 +176,18 @@ namespace upAlarm
             try
             {
                        
-                            Ping ping = new Ping();
-                            PingOptions options = new PingOptions(aping.Ttl, aping.DontFragment);
-                            try //dirty fix
-                            {
+                Ping ping = new Ping();
+                PingOptions options = new PingOptions(aping.Ttl, aping.DontFragment);
+                try //dirty fix
+                {
                                
-                                pong = await ping.SendPingAsync(aping.Ip, aping.TimeoutMs, aping.Buffer, options);
+                    pong = await ping.SendPingAsync(aping.Ip, aping.TimeoutMs, aping.Buffer, options);
                            
-                            }
-                            catch
-                            {
-                                
-                            }
+                }
+                catch
+                {
+                    throw;
+                }
 
 
                 
