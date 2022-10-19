@@ -148,6 +148,7 @@ namespace upAlarm
                 {
                     try
                     {
+                       
                         await Task.Run(delegate
                         {
                             //Task.Delay(1000);
@@ -156,6 +157,13 @@ namespace upAlarm
                             th.IsBackground = true;
                             th.Start();
                             ip.ThreadId = th.ManagedThreadId;
+                            Application.Current.Dispatcher.Invoke((Action)delegate
+                            {
+                                StackPanel panel = (StackPanel)listBox1.Items[listBox1.Items.Count - 1];
+                                TextBlock block = (TextBlock)panel.Children[1];
+                                block.Name = $"box_{th.ManagedThreadId.ToString()}";
+                            });
+                                
 
                         });
                         ip.IsRunning = true;
@@ -234,7 +242,7 @@ namespace upAlarm
                 Application.Current.Dispatcher.Invoke((Action)delegate {
 
                     StackPanel panel = (StackPanel)listBox1.Items[listBox1.Items.Count - 1];
-                    TextBlock block = (TextBlock)panel.Children[1];
+                    TextBlock block = (TextBlock)panel.Children.OfType<TextBlock>().Where(e => e.Name == $"box_{number.ToString()}").FirstOrDefault();
                     block.Text = " " + ip.Ip + " : " + APing.ReplyText(pong) + "\t";
                     Rectangle rect = (Rectangle)panel.Children[0];
                     if (rect.Fill == Brushes.ForestGreen)
