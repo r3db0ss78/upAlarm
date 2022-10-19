@@ -142,36 +142,35 @@ namespace upAlarm
 
         public async void DoPings()
         {
-            for (int i=0;i<ips.Count();i++)
+            foreach(APing ip in ips)
             {
-                
-                if (!ips[i].IsRunning)
+                if (!ip.IsRunning && ip.ThreadId==0)
                 {
                     try
                     {
                         await Task.Run(delegate
                         {
-                            Task.Delay(1000);
-                            Thread th = new Thread(() => DoPing(ips[i], i));
+                            //Task.Delay(1000);
+                            Thread th = new Thread(() => DoPing(ip, Thread.CurrentThread.ManagedThreadId));
                             th.SetApartmentState(ApartmentState.STA);
                             th.IsBackground = true;
                             th.Start();
-                            ips[i].ThreadId = th.ManagedThreadId;
+                            ip.ThreadId = th.ManagedThreadId;
 
                         });
-                        ips[i].IsRunning = true;
+                        ip.IsRunning = true;
                     }
-                   catch(Exception e)
+                    catch (Exception e)
                     {
                         UserMsg(e.Message);
                         GC.Collect();
                     }
                 }
-                
             }
+            
         }
 
-        public void  DoPing(APing aping, int number)
+        public void  DoPing(APing aping, int threadId)
         {
                    
                 try
@@ -191,7 +190,7 @@ namespace upAlarm
                             try //dirty fix
                             {
                                 pong = await ping.SendPingAsync(aping.Ip, aping.TimeoutMs, aping.Buffer, options);
-                                SetValue(pong, aping, number);
+                                SetValue(pong, aping, threadId);
                             }
                             catch
                             {
@@ -225,7 +224,7 @@ namespace upAlarm
         }
 
         
-
+        //todo need to set it by thread id. good for now
 
         public void SetValue(PingReply pong, APing ip, int number)
         {
@@ -234,7 +233,7 @@ namespace upAlarm
             {
                 Application.Current.Dispatcher.Invoke((Action)delegate {
 
-                    StackPanel panel = (StackPanel)listBox1.Items[number];
+                    StackPanel panel = (StackPanel)listBox1.Items[listBox1.Items.Count-1] ;
                     TextBlock block = (TextBlock)panel.Children[1];
                     block.Text = " " + ip.Ip + " : " + APing.ReplyText(pong)+"\t";
                     Rectangle rect= (Rectangle)panel.Children[0];
