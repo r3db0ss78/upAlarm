@@ -30,7 +30,7 @@ namespace upAlarm
         List<ComboBoxItem> list = new List<ComboBoxItem>();
         List<ComboBoxItem> listWeb = new List<ComboBoxItem>();
         StackPanel stackPanel1 = new StackPanel();
-
+       
         public MainWindow()
         {
             InitializeComponent();
@@ -78,7 +78,7 @@ namespace upAlarm
             if (UserInput.Text.ToString().Length > 0)
             {
                 Run(); //no validation
-                e.Handled = true;
+                
             }
         }
 
@@ -99,24 +99,7 @@ namespace upAlarm
 
                 if (hostEntry.AddressList.Length > 0)
                 {
-                    TextBlock output = new TextBlock();
-                    output.TextAlignment = TextAlignment.Center;
-                    output.Text = " " + hostname + " : ...";
-
-
-                    Rectangle rect1 = new Rectangle();
-                    rect1.Width = 20;
-                    rect1.Height = 20;
-                    rect1.Fill = Brushes.ForestGreen;
-
-
-                    StackPanel panel = new StackPanel();
-                    panel.Orientation = Orientation.Horizontal;
-                    panel.Children.Add(rect1);
-                    panel.Children.Add(output);
-
-
-                    listBox1.Items.Add(panel);
+                  
 
                     byte[] buffer = new byte[sizeBytes];
                     buffer.Initialize();
@@ -126,6 +109,7 @@ namespace upAlarm
 
 
                     ips.Add(ping);
+
                     DoPings();
                 }
                 else
@@ -140,78 +124,79 @@ namespace upAlarm
 
         }
 
-        public async void DoPings()
+        public void DoPings()
         {
-            foreach (APing ip in ips)
-            {
-                if (!ip.IsRunning && ip.ThreadId == 0)
+            //System.Timers.Timer timer = new System.Timers.Timer(10);
+
+          
+                foreach (APing ip in ips)
                 {
-                    try
+                    if (ip.ThreadId == 0)
                     {
-                       
-                        await Task.Run(delegate
+                        try
                         {
-                            //Task.Delay(1000);
-                            Thread th = new Thread(() => DoPing(ip, Thread.CurrentThread.ManagedThreadId));
+
+                            Thread th = new Thread(() => {
+                                //add box
+                                ip.ThreadId = Thread.CurrentThread.ManagedThreadId;
+                                AddBox(ip);
+                                //start timer
+                                System.Timers.Timer timer = new System.Timers.Timer(10);
+                                timer.Elapsed += new ElapsedEventHandler(delegate
+                                {
+                                     DoPing(ip);
+                                });
+
+                                timer.Start();
+                            });
+
                             th.SetApartmentState(ApartmentState.STA);
                             th.IsBackground = true;
                             th.Start();
-                            ip.ThreadId = th.ManagedThreadId;
-                            Application.Current.Dispatcher.Invoke((Action)delegate
-                            {
-                                StackPanel panel = (StackPanel)listBox1.Items[listBox1.Items.Count - 1];
-                                TextBlock block = (TextBlock)panel.Children[1];
-                                block.Name = $"box_{th.ManagedThreadId.ToString()}";
-                            });
-                                
+                            
+                    }
+                        catch (Exception e)
+                        {
+                            UserMsg(e.Message);
+                            GC.Collect();
+                        }//end catch
 
-                        });
-                        ip.IsRunning = true;
                     }
-                    catch (Exception e)
-                    {
-                        UserMsg(e.Message);
-                        GC.Collect();
-                    }
+                   
+
                 }
-            }
+        
+            
 
         }
 
-        public void DoPing(APing aping, int threadId)
+
+        //todo implement task for async return
+        public async void DoPing(APing aping)
         {
 
             try
             {
-                Ping ping = new Ping();
-                PingReply pong = null;
-                PingOptions options = new PingOptions(aping.Ttl, aping.DontFragment);
-
-                //pong = ping.Send(aping.Ip, aping.TimeoutMs, aping.Buffer, options);
-                //int fr = (int)pong.RoundtripTime+10;
-
-                System.Timers.Timer timer = new System.Timers.Timer(aping.FrequencyMs);
-                if (null == pong)
-                {
-                    timer.Elapsed += new ElapsedEventHandler(async delegate
-                    {
-                        try //dirty fix
-                        {
-                            pong = await ping.SendPingAsync(aping.Ip, aping.TimeoutMs, aping.Buffer, options);
-                            SetValue(pong, aping, threadId);
-                        }
-                        catch
-                        {
-                            pong = null;
-                            ping.Dispose();
-                            aping.FrequencyMs += 10; //dirty fix
-                        }
-
-
-                    });
-                }
-                timer.Start();
-
+                       
+                            Ping ping = new Ping();
+                            PingOptions options = new PingOptions(aping.Ttl, aping.DontFragment);
+                            try //dirty fix
+                            {
+                                PingReply pong = null;
+                                pong = await ping.SendPingAsync(aping.Ip, aping.TimeoutMs, aping.Buffer, options);
+                                
+                               // ping.PingCompleted+= new PingCompletedEventHandler( delegate {
+                                   SetValue(pong, aping);
+                                   ping.Dispose();
+                               // });
+                                
+                            }
+                            catch
+                            {
+                                
+                            }
+                        
+                       
 
             }
             catch (Exception e)
@@ -232,9 +217,33 @@ namespace upAlarm
         }
 
 
+        public void AddBox(APing ip)
+        {
+            Application.Current.Dispatcher.Invoke((Action)delegate
+            {
+                TextBlock output = new TextBlock();
+                output.TextAlignment = TextAlignment.Center;
+                output.Text = " " + ip.Ip + " : ...";
+                output.Name = $"box_{ip.ThreadId}";
+
+                Rectangle rect1 = new Rectangle();
+                rect1.Width = 20;
+                rect1.Height = 20;
+                rect1.Fill = Brushes.ForestGreen;
+
+
+                StackPanel panel = new StackPanel();
+                panel.Orientation = Orientation.Horizontal;
+                panel.Children.Add(rect1);
+                panel.Children.Add(output);
+
+                listBox1.Items.Add(panel);
+            });
+        }
+
         //todo need to set it by thread id. good for now
 
-        public void SetValue(PingReply pong, APing ip, int number)
+        public void SetValue(PingReply pong, APing ip)
         {
 
             if (pong != null)
@@ -242,8 +251,9 @@ namespace upAlarm
                 Application.Current.Dispatcher.Invoke((Action)delegate {
 
                     StackPanel panel = (StackPanel)listBox1.Items[listBox1.Items.Count - 1];
-                    TextBlock block = (TextBlock)panel.Children.OfType<TextBlock>().Where(e => e.Name == $"box_{number.ToString()}").FirstOrDefault();
-                    block.Text = " " + ip.Ip + " : " + APing.ReplyText(pong) + "\t";
+                    TextBlock block = (TextBlock)panel.Children.OfType<TextBlock>().AsEnumerable().Where(s=>s.Name.Contains($"box_{ip.ThreadId.ToString()}")).FirstOrDefault();
+                    //.Where(e => e.Name == $"box_{ip.ThreadId.ToString()}").FirstOrDefault();
+                    block.Text = $"{ip.Ip} : {APing.ReplyText(pong)}\t";
                     Rectangle rect = (Rectangle)panel.Children[0];
                     if (rect.Fill == Brushes.ForestGreen)
                     {
