@@ -13,7 +13,7 @@
         <TextBox x:Name="UserInput" KeyDown="Key_Down" Height="23" TextWrapping="Wrap" Text="Enter Host" Cursor="" GotFocus="UserInput_GotFocus" Margin="0,10,451,10"/>
         <Button x:Name="Ping"  Height="23"  Width="100" Content="Ping" Click="Ping_Click" RenderTransformOrigin="1.54,0.49"   />
 
-        <ListBox Name="listBox1"  SelectionMode="Single" Margin="0,105,5,-347"/>
+        <ListBox Name="listBox1"  SelectionMode="Single" Margin="0,105,3,-347"/>
         <TextBlock x:Name="errorMsg" HorizontalAlignment="Left" Margin="23,38,0,-10" TextWrapping="Wrap" VerticalAlignment="Top" RenderTransformOrigin="-0.163,0.5" Width="291"/>
         <TextBox x:Name="FrequencyMs" HorizontalAlignment="Left" Height="23" Margin="0,54,0,-27" TextWrapping="Wrap" VerticalAlignment="Top" Width="91"/>
         <TextBox x:Name="Buffer" HorizontalAlignment="Left" Height="23" Margin="105,54,0,-27" TextWrapping="Wrap" VerticalAlignment="Top" Width="80"/>

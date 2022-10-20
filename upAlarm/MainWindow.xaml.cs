@@ -33,7 +33,6 @@ namespace upAlarm
         List<ComboBoxItem> listWeb = new List<ComboBoxItem>();
         StackPanel panel = new StackPanel();
         //List<Task> runningPings=new List<Task>();
-       
 
         public MainWindow()
         {
@@ -45,8 +44,11 @@ namespace upAlarm
         public void InitializeInputs(APing ping)
         {
             FrequencyMs.Text = ping.FrequencyMs.ToString();
+           
             Buffer.Text = ping.Buffer.Count().ToString();
-            panel.Orientation = Orientation.Horizontal;
+            //panel.Orientation = Orientation.Horizontal;
+            panel.Width = 400;
+            panel.Orientation = Orientation.Vertical;
             listBox1.Items.Add(panel);
         }
 
@@ -214,7 +216,10 @@ namespace upAlarm
 
         public void AddBox(APing ip)
         {
-          
+            StackPanel p = new StackPanel();
+            //p.Name = $"pan_{ip.ThreadId}";
+
+
             TextBlock output = new TextBlock();
             output.TextAlignment = TextAlignment.Center;
             output.Text = " " + ip.Ip + " : ...";
@@ -224,11 +229,13 @@ namespace upAlarm
             rect1.Width = 20;
             rect1.Height = 20;
             rect1.Fill = Brushes.ForestGreen;
-
+            rect1.Name=$"rec_{ip.ThreadId}";
 
             panel.Children.Add(rect1);
             panel.Children.Add(output);
-            panel.Children.Add(new StackPanel());
+
+
+            panel.Children.Add(p);
                
         }
 
@@ -241,10 +248,13 @@ namespace upAlarm
                 Application.Current.Dispatcher.Invoke((Action)delegate {
 
                     StackPanel panel = (StackPanel)listBox1.Items[listBox1.Items.Count - 1];
+                    
                     TextBlock block = new List<TextBlock>(panel.Children.OfType<TextBlock>()).FirstOrDefault(s => s.Name == $"box_{ip.ThreadId.ToString()}");
                   
                     block.Text = $" {ip.Ip} : {APing.ReplyText(pong)} \t\t";
-                    Rectangle rect = (Rectangle)panel.Children[0];
+
+                    Rectangle rect = new List<Rectangle>(panel.Children.OfType<Rectangle>()).FirstOrDefault(s => s.Name == $"rec_{ip.ThreadId.ToString()}");
+
                     if (rect.Fill == Brushes.ForestGreen)
                     {
                         rect.Fill = Brushes.Yellow;
